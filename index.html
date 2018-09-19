@@ -160,10 +160,10 @@
         tdMinutesAway.text(minutesAway);
 
         var updateRecord = $("<td>");
-        updateRecord.html("<button class='update' data-name='" + id + "'>Update</button>")
+        updateRecord.html("<button class='update btn-success' data-name='" + id + "'>Update</button>")
         
         deleteRecord = $("<td>");
-        deleteRecord.html("<button class='delete' data-name='" + id + "'>Delete</button>")
+        deleteRecord.html("<button class='delete btn-danger' data-name='" + id + "'>Delete</button>")
 
         newRow.append(tdName);
         newRow.append(tdDestination);
