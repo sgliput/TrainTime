@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Train Time</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.0/firebase.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Train Schedule</h1>
+            <br>
+        </div>
+        <br><br>
+        <div class="card">
+            <div class="card-header">
+               Train Times
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Train Name</th>
+                            <th>Destination</th>
+                            <th>Frequency (min)</th>
+                            <th>Next Arrival</th>
+                            <th>Minutes Away</th>
+                            <th>Update</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+                <br>
+                <br>
+
+
+                <div class="card">
+                    <div class="card-header">
+                        Add a Train
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group row">
+                                <label for="name">Train Name</label>
+                                <input class="form-control" id="name" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="destination">Destination</label>
+                                <input class="form-control" id="destination" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="firstTime">First Train Time (HH:mm - military time)</label>
+                                <input class="form-control" id="firstTime" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="frequency">Frequency (min)</label>
+                                <input class="form-control" id="frequency" type="text">
+                            </div>
+                            <button class="btn btn-primary" id="submit" type="submit">Submit</button>
+                            <button class="btn btn-primary" id="update" type="submit">Update</button>
+                        </form>
+                    </div>
+                </div>
+            
+
+    </div>
+</body>
+
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyAcYyXaxC4IGhwkcAZko61HzjBxbr6APK4",
+        authDomain: "train-time-88003.firebaseapp.com",
+        databaseURL: "https://train-time-88003.firebaseio.com",
+        projectId: "train-time-88003",
+        storageBucket: "train-time-88003.appspot.com",
+        messagingSenderId: "552697473981"
+    };
+    firebase.initializeApp(config);
+
+    var database = firebase.database();
+
+    console.log(moment().format("HH:mm"));
+
+
+
+
+
+    $("#submit").on("click", function () {
+
+        var name = $("#name").val().trim();
+        var destination = $("#destination").val().trim();
+        var firstTime = $("#firstTime").val().trim();
+        var frequency = $("#frequency").val().trim();
+
+        var insertRow = database.ref().push({
+            trainName: name,
+            trainDestination: destination,
+            trainFirstTime: firstTime,
+            trainFrequency: frequency,
+        });
+       
+        alert("Train successfully added!");
+
+    });
+
+    var child;
+
+    database.ref().on("child_added", function (snapshot) {
+        console.log(snapshot.val());
+        child = snapshot.val();
+        var id = snapshot.key;
+        console.log(id);
+        
+
+
+        var newRow = $("<tr>");
+            
+        var tdName = $("<td>");
+        tdName.text(child.trainName);
+
+
+        var tdDestination = $("<td>");
+        tdDestination.text(child.trainDestination);
+        var tdFrequency = $("<td>");
+        tdFrequency.text(child.trainFrequency);
+
+        var tdNext = $("<td>");
+        var currentTime = moment();
+        var convertedTime = moment(child.trainFirstTime, "HH:mm").subtract(1, "years");
+        var diffTime = moment().diff(moment(convertedTime), "minutes");
+
+        var remainder = diffTime % child.trainFrequency;
+        var minutesAway = child.trainFrequency - remainder;
+        var nextTrain = moment().add(minutesAway, "minutes").format("hh:mm");
+
+
+        tdNext.text(nextTrain);
+        var tdMinutesAway = $("<td>");
+        tdMinutesAway.text(minutesAway);
+
+        var updateRecord = $("<td>");
+        updateRecord.html("<button class='update' data-name='" + id + "'>Update</button>")
+        
+        deleteRecord = $("<td>");
+        deleteRecord.html("<button class='delete' data-name='" + id + "'>Delete</button>")
+
+        newRow.append(tdName);
+        newRow.append(tdDestination);
+        newRow.append(tdFrequency);
+        newRow.append(tdNext);
+        newRow.append(tdMinutesAway);
+        newRow.append(updateRecord);
+        newRow.append(deleteRecord);
+        $("tbody").append(newRow);
+    });
+
+ $(document.body).on("click", ".update", function() {
+     var id = $(this).attr("data-name");
+     var updateThis = database.ref().child(id);
+     updateThis.once('value', function (snapshot) {
+         var nameFromDB = snapshot.val().trainName;
+         var destFromDB = snapshot.val().trainDestination;
+         var firstFromDB = snapshot.val().trainFirstTime;
+         var frequencyFromDB = snapshot.val().trainFrequency;
+
+         $("#name").val(nameFromDB);
+         $("#destination").val(destFromDB);
+         $("#firstTime").val(firstFromDB);
+         $("#frequency").val(frequencyFromDB);
+         $("#submit").hide();
+         $("#update").show();
+         
+
+         $("#update").on("click", function() {
+             updateThis.update({
+                 "trainName": $("#name").val(),
+                 "trainDestination": $("#destination").val(),
+                 "trainFirstTime": $("#firstTime").val(),
+                 "trainFrequency": $("#frequency").val()
+                 });
+
+
+         })
+     });
+
+     
+
+
+ })
+
+    $(document.body).on("click", ".delete", function () {
+        var id = $(this).attr("data-name");
+        var deleteThis = database.ref().child(id);
+        deleteThis.remove().then(function () {
+            alert("You deleted a record.");
+            location.reload();
+        }).catch(function (error) {
+            alert("Sorry, something went wrong");
+            console.log("Sorry");
+        });
+
+    })
+
+
+
+
+
+</script>
+
+</html>
