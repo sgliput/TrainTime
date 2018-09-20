@@ -22,14 +22,16 @@
 
 <body>
     <div class="container">
+        <br>
         <div class="jumbotron">
             <h1>Train Schedule</h1>
             <br>
         </div>
-        <br><br>
+        <br>
+        <br>
         <div class="card">
             <div class="card-header">
-               Train Times
+                Train Times
             </div>
             <div class="card-body">
                 <table class="table">
@@ -50,182 +52,40 @@
                 </table>
             </div>
         </div>
-                <br>
-                <br>
+        <br>
+        <br>
 
 
-                <div class="card">
-                    <div class="card-header">
-                        Add a Train
+        <div id="trainForm" class="card">
+            <div class="card-header">
+                Add a Train
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group row">
+                        <label for="name">Train Name</label>
+                        <input class="form-control" id="name" type="text">
                     </div>
-                    <div class="card-body">
-                        <form>
-                            <div class="form-group row">
-                                <label for="name">Train Name</label>
-                                <input class="form-control" id="name" type="text">
-                            </div>
-                            <div class="form-group row">
-                                <label for="destination">Destination</label>
-                                <input class="form-control" id="destination" type="text">
-                            </div>
-                            <div class="form-group row">
-                                <label for="firstTime">First Train Time (HH:mm - military time)</label>
-                                <input class="form-control" id="firstTime" type="text">
-                            </div>
-                            <div class="form-group row">
-                                <label for="frequency">Frequency (min)</label>
-                                <input class="form-control" id="frequency" type="text">
-                            </div>
-                            <button class="btn btn-primary" id="submit" type="submit">Submit</button>
-                            <button class="btn btn-primary" id="update" type="submit">Update</button>
-                        </form>
+                    <div class="form-group row">
+                        <label for="destination">Destination</label>
+                        <input class="form-control" id="destination" type="text">
                     </div>
-                </div>
-            
+                    <div class="form-group row">
+                        <label for="firstTime">First Train Time (HH:mm - military time)</label>
+                        <input class="form-control" id="firstTime" type="text">
+                    </div>
+                    <div class="form-group row">
+                        <label for="frequency">Frequency (min)</label>
+                        <input class="form-control" id="frequency" type="text">
+                    </div>
+                    <button class="btn btn-primary" id="submit" type="submit">Submit</button>
+                    <button class="btn btn-primary" id="update" type="submit">Update</button>
+                </form>
+            </div>
+        </div>
+        <br><br>
 
     </div>
+    <script src="assets/javascript/app.js"></script>
 </body>
-
-<script>
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyAcYyXaxC4IGhwkcAZko61HzjBxbr6APK4",
-        authDomain: "train-time-88003.firebaseapp.com",
-        databaseURL: "https://train-time-88003.firebaseio.com",
-        projectId: "train-time-88003",
-        storageBucket: "train-time-88003.appspot.com",
-        messagingSenderId: "552697473981"
-    };
-    firebase.initializeApp(config);
-
-    var database = firebase.database();
-
-    console.log(moment().format("HH:mm"));
-
-
-
-
-
-    $("#submit").on("click", function () {
-
-        var name = $("#name").val().trim();
-        var destination = $("#destination").val().trim();
-        var firstTime = $("#firstTime").val().trim();
-        var frequency = $("#frequency").val().trim();
-
-        var insertRow = database.ref().push({
-            trainName: name,
-            trainDestination: destination,
-            trainFirstTime: firstTime,
-            trainFrequency: frequency,
-        });
-       
-        alert("Train successfully added!");
-
-    });
-
-    var child;
-
-    database.ref().on("child_added", function (snapshot) {
-        console.log(snapshot.val());
-        child = snapshot.val();
-        var id = snapshot.key;
-        console.log(id);
-        
-
-
-        var newRow = $("<tr>");
-            
-        var tdName = $("<td>");
-        tdName.text(child.trainName);
-
-
-        var tdDestination = $("<td>");
-        tdDestination.text(child.trainDestination);
-        var tdFrequency = $("<td>");
-        tdFrequency.text(child.trainFrequency);
-
-        var tdNext = $("<td>");
-        var currentTime = moment();
-        var convertedTime = moment(child.trainFirstTime, "HH:mm").subtract(1, "years");
-        var diffTime = moment().diff(moment(convertedTime), "minutes");
-
-        var remainder = diffTime % child.trainFrequency;
-        var minutesAway = child.trainFrequency - remainder;
-        var nextTrain = moment().add(minutesAway, "minutes").format("hh:mm");
-
-
-        tdNext.text(nextTrain);
-        var tdMinutesAway = $("<td>");
-        tdMinutesAway.text(minutesAway);
-
-        var updateRecord = $("<td>");
-        updateRecord.html("<button class='update btn-success' data-name='" + id + "'>Update</button>")
-        
-        deleteRecord = $("<td>");
-        deleteRecord.html("<button class='delete btn-danger' data-name='" + id + "'>Delete</button>")
-
-        newRow.append(tdName);
-        newRow.append(tdDestination);
-        newRow.append(tdFrequency);
-        newRow.append(tdNext);
-        newRow.append(tdMinutesAway);
-        newRow.append(updateRecord);
-        newRow.append(deleteRecord);
-        $("tbody").append(newRow);
-    });
-
- $(document.body).on("click", ".update", function() {
-     var id = $(this).attr("data-name");
-     var updateThis = database.ref().child(id);
-     updateThis.once('value', function (snapshot) {
-         var nameFromDB = snapshot.val().trainName;
-         var destFromDB = snapshot.val().trainDestination;
-         var firstFromDB = snapshot.val().trainFirstTime;
-         var frequencyFromDB = snapshot.val().trainFrequency;
-
-         $("#name").val(nameFromDB);
-         $("#destination").val(destFromDB);
-         $("#firstTime").val(firstFromDB);
-         $("#frequency").val(frequencyFromDB);
-         $("#submit").hide();
-         $("#update").show();
-         
-
-         $("#update").on("click", function() {
-             updateThis.update({
-                 "trainName": $("#name").val(),
-                 "trainDestination": $("#destination").val(),
-                 "trainFirstTime": $("#firstTime").val(),
-                 "trainFrequency": $("#frequency").val()
-                 });
-
-
-         })
-     });
-
-     
-
-
- })
-
-    $(document.body).on("click", ".delete", function () {
-        var id = $(this).attr("data-name");
-        var deleteThis = database.ref().child(id);
-        deleteThis.remove().then(function () {
-            alert("You deleted a record.");
-            location.reload();
-        }).catch(function (error) {
-            alert("Sorry, something went wrong");
-            console.log("Sorry");
-        });
-
-    })
-
-
-
-
-
-</script>
-
 </html>
