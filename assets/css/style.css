@@ -1,5 +1,6 @@
 body{
-    background-color: rosybrown;
+    background: url("../images/station.jpg") no-repeat;
+    background-size: 100% 100%;
 }
 
 .jumbotron{
@@ -9,23 +10,55 @@ body{
     background: url("../images/train.jpg");
     background-size: 100% 100%;
     color: white;
+    border: 4px outset black;
 }
 
 .jumbotron h1{
     border: 2px solid white;
-    width: 30%;
+    width: 70%;
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
     margin: 0 auto;
+}
+
+h3{
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
 }
 
 .card-header{
     background-color: blue;
     color: white;
+    opacity: 1;
 }
 
 th, td{
     margin: 0 15px 0 15px;
 }
 
+.table{
+    background-color: black;
+    color: white;
+}
+
+.table span{
+    
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+#tdName{
+    width: 20%;
+}
+
 #update{
     display: none;
+}
+
+#trainForm{
+    border: 4px outset black;
+    opacity: 0.8;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+label, input, button{
+    opacity: 1;
 }

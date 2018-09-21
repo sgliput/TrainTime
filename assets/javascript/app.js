@@ -16,6 +16,7 @@ var mmt = moment();
 var midnight = mmt.clone().startOf('day');
 var diffMinutes = mmt.diff(midnight, 'minutes');
 
+
 $("#submit").on("click", function () {
 
     var name = $("#name").val().trim();
@@ -48,14 +49,32 @@ database.ref().on("child_added", function (snapshot) {
 
     var newRow = $("<tr>");
 
-    var tdName = $("<td>");
-    tdName.text(child.trainName);
+    var tdName = $("<td id='tdName'>");
+    var splitName = child.trainName.split("");
+    for (var i = 0; i < splitName.length; i++) {
+        var letter = $("<span>" + splitName[i] + "</span>");
+        letter.css({ "border": "1px solid darkslategrey", "padding": "2px", "margin": "0 3px" });
+        tdName.append(letter);
+    }
+
 
 
     var tdDestination = $("<td>");
-    tdDestination.text(child.trainDestination);
+    var splitDest = child.trainDestination.split("");
+    for (var i = 0; i < splitDest.length; i++) {
+        var letter = $("<span>" + splitDest[i] + "</span>");
+        letter.css({ "border": "1px solid darkslategrey", "padding": "2px", "margin": "0 3px" });
+        tdDestination.append(letter);
+    }
+
+
     var tdFrequency = $("<td>");
-    tdFrequency.text(child.trainFrequency);
+    var splitFrequency = child.trainFrequency.split("");
+    for (var i = 0; i < splitFrequency.length; i++) {
+        var letter = $("<span>" + splitFrequency[i] + "</span>");
+        letter.css({ "border": "1px solid darkslategrey", "padding": "2px", "margin": "0 3px" });
+        tdFrequency.append(letter);
+    }
 
     var tdNext = $("<td>");
     var currentTime = moment();
@@ -64,12 +83,23 @@ database.ref().on("child_added", function (snapshot) {
 
     var remainder = diffTime % child.trainFrequency;
     var minutesAway = child.trainFrequency - remainder;
+    var minAway = minutesAway.toString();
     var nextTrain = moment().add(minutesAway, "minutes").format("hh:mm");
 
 
-    tdNext.text(nextTrain);
+    var splitNext = nextTrain.split("");
+    for (var i = 0; i < splitNext.length; i++) {
+        var letter = $("<span>" + splitNext[i] + "</span>");
+        letter.css({ "border": "1px solid darkslategrey", "padding": "2px", "margin": "0 3px" });
+        tdNext.append(letter);
+    }
     var tdMinutesAway = $("<td>");
-    tdMinutesAway.text(minutesAway);
+    var splitMinutes = minAway.split("");
+    for (var i = 0; i < splitMinutes.length; i++) {
+        var letter = $("<span>" + splitMinutes[i] + "</span>");
+        letter.css({ "border": "1px solid darkslategrey", "padding": "2px", "margin": "0 3px" });
+        tdMinutesAway.append(letter);
+    }
 
     var updateRecord = $("<td>");
     updateRecord.html("<a href='#trainForm'><button class='update btn-success' data-name='" + id + "'>Update</button></a>")
