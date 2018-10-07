@@ -104,8 +104,8 @@ database.ref().on("child_added", function (snapshot) {
     var updateRecord = $("<td>");
     updateRecord.html("<a href='#trainForm'><button class='update btn-success' data-name='" + id + "'>Update</button></a>")
 
-    deleteRecord = $("<td>");
-    deleteRecord.html("<button class='delete btn-danger' data-name='" + id + "'>Delete</button>")
+    var deleteRecord = $("<td>");
+    deleteRecord.html("<button class='delete btn-danger' data-name='" + id + "'>Delete</button>");
 
     newRow.append(tdName);
     newRow.append(tdDestination);
@@ -135,17 +135,25 @@ $(document.body).on("click", ".update", function () {
         $("#update").show();
 
 
-        $("#update").on("click", function () {
-            updateThis.update({
-                "trainName": $("#name").val(),
-                "trainDestination": $("#destination").val(),
-                "trainFirstTime": $("#firstTime").val(),
-                "trainFrequency": $("#frequency").val()
-            });
-
-
-        })
+        
     });
+    
+    $("#update").on("click", function () {
+        updateThis.update({
+            "trainName": $("#name").val(),
+            "trainDestination": $("#destination").val(),
+            "trainFirstTime": $("#firstTime").val(),
+            "trainFrequency": $("#frequency").val()
+        }).then(function () {
+            alert("You updated a record.");
+            location.reload();
+        }).catch(function (error) {
+            alert("Sorry, something went wrong.");
+            console.log("Sorry");
+        });
+
+
+    })
 })
 
 
